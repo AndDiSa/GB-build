@@ -131,6 +131,9 @@ function setpaths()
 
     # needed for OProfile to post-process collected samples
     export OPROFILE_EVENTS_DIR=$prebuiltdir/oprofile
+
+    # make sure we have no :: in PATH
+    export PATH=${PATH/::/:}
 }
 
 function printconfig()
