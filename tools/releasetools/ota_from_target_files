@@ -396,6 +396,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   script.RunRestore()
 
+  script.Mount("/data")
+  script.UnpackPackageDir("data", "/data")
+
   boot_img = common.File("boot.img", common.BuildBootableImage(
       os.path.join(OPTIONS.input_tmp, "BOOT")))
   try:
