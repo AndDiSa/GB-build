@@ -142,6 +142,7 @@ class EdifyGenerator(object):
       self.mounts.add(p.mount_point)
     else:
       what = mount_point.lstrip("/")
+      if what == "userdata" : mount_point = "/data"
       what = self.info.get("partition_path", "") + what
       self.script.append('mount("%s", "%s", "%s", "%s");' %
                          (self.info["fs_type"], self.info["partition_type"],
