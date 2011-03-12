@@ -98,6 +98,7 @@ GRANDFATHERED_USER_MODULES += \
 	dumpstate \
 	dumpsys \
 	dx-tests \
+	e2fsck \
 	easymock \
 	edify \
 	emmalib \
