@@ -18,6 +18,7 @@ import getopt
 import getpass
 import imp
 import os
+import platform
 import re
 import sha
 import shutil
@@ -55,6 +56,22 @@ def Run(args, **kwargs):
   if OPTIONS.verbose:
     print "  running: ", " ".join(args)
   return subprocess.Popen(args, **kwargs)
+
+
+def CloseInheritedPipes():
+  """ Gmake in MAC OS has file descriptor (PIPE) leak. We close those fds
+  before doing other work."""
+  if platform.system() != "Darwin":
+    return
+  for d in range(3, 1025):
+    try:
+      stat = os.fstat(d)
+      if stat is not None:
+        pipebit = stat[0] & 0x1000
+        if pipebit != 0:
+          os.close(d)
+    except OSError:
+      pass
 
 
 def LoadInfoDict(zip):
@@ -121,10 +138,11 @@ def LoadInfoDict(zip):
   makeint("boot_size")
 
   d["fstab"] = LoadRecoveryFSTab(zip)
+
   if not d["fstab"]:
     if "fs_type" not in d: d["fs_type"] = "yaffs2"
     if "partition_type" not in d: d["partition_type"] = "MTD"
-
+  
   return d
 
 def LoadRecoveryFSTab(zip):
@@ -137,7 +155,6 @@ def LoadRecoveryFSTab(zip):
     # older target-files that doesn't have a recovery.fstab; fall back
     # to the fs_type and partition_type keys.
     return
-
   d = {}
   for line in data.split("\n"):
     line = line.strip()
@@ -782,4 +799,6 @@ def GetTypeAndDevice(mount_point, info):
                "/radio": "radio",
                "/data": "userdata",
                "/cache": "cache"}
-    return info["partition_type"], info.get("partition_path", "") + devices[mount_point]
+    return ( info["partition_type"], 
+             info.get("partition_path", "") + devices[mount_point] )
+

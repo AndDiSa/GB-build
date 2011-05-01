@@ -146,7 +146,7 @@ class EdifyGenerator(object):
       what = self.info.get("partition_path", "") + what
       self.script.append('mount("%s", "%s", "%s", "%s");' %
                          (self.info["fs_type"], self.info["partition_type"],
-                          what, mount_point))
+                         what, mount_point))
       self.mounts.add(mount_point)
 
   def UnpackPackageDir(self, src, dst):
