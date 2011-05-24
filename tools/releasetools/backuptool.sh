@@ -158,6 +158,7 @@ etc/permissions/features.xml
 framework/com.google.android.maps.jar
 lib/libspeech.so
 lib/libvoicesearch.so
+lib/jni_talk.so
 etc/hosts
 etc/custom_backup_list.txt
 EOF
