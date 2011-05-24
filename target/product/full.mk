@@ -35,10 +35,6 @@ PRODUCT_PROPERTY_OVERRIDES := \
     ro.ril.hsxpa=2 \
     ro.ril.gprsclass=12 \
     dalvik.vm.dexopt-data-only=1 \
-    ro.HOME_APP_ADJ=1 \
-    ro.HOME_APP_MEM=2048 \
-    ro.compcache.default=20 \
-    ro.compcache.swappiness=10 \
     ro.com.google.clientidbase=android-google 
 
 
