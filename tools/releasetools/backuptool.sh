@@ -40,6 +40,7 @@ app/GenieWidget.apk
 app/Gmail.apk
 app/GoogleBackupTransport.apk
 app/GoogleCalendarSyncAdapter.apk
+app/GogleCarHome.apk
 app/GoogleContactsSyncAdapter.apk
 app/GoogleFeedback.apk
 app/GooglePartnerSetup.apk
@@ -76,6 +77,7 @@ vendor/app/GenieWidget.apk
 vendor/app/Gmail.apk
 vendor/app/GoogleBackupTransport.apk
 vendor/app/GoogleCalendarSyncAdapter.apk
+vendor/app/GoogleCarHome.apk
 vendor/app/GoogleContactsSyncAdapter.apk
 vendor/app/GoogleFeedback.apk
 vendor/app/GooglePartnerSetup.apk
@@ -125,6 +127,7 @@ vendor/app/GenieWidget.apk
 vendor/app/Gmail.apk
 vendor/app/GoogleBackupTransport.apk
 vendor/app/GoogleCalendarSyncAdapter.apk
+vendor/app/GoogleCarHome.apk
 vendor/app/GoogleContactsSyncAdapter.apk
 vendor/app/GoogleFeedback.apk
 vendor/app/GooglePartnerSetup.apk
