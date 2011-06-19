@@ -40,7 +40,7 @@ app/GenieWidget.apk
 app/Gmail.apk
 app/GoogleBackupTransport.apk
 app/GoogleCalendarSyncAdapter.apk
-app/GogleCarHome.apk
+app/GoogleCarHome.apk
 app/GoogleContactsSyncAdapter.apk
 app/GoogleFeedback.apk
 app/GooglePartnerSetup.apk
