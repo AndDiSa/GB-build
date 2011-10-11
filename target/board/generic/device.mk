@@ -14,17 +14,19 @@
 # limitations under the License.
 #
 
-# This is a build configuration for a full-featured build of the
-# Open-Source part of the tree. It's geared toward a US-centric
-# build quite specifically for the emulator, and might not be
-# entirely appropriate to inherit from for on-device configurations.
+# This is a build configuration for the product aspects that
+# are specific to the emulator.
 
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/board/generic/device.mk)
+PRODUCT_PROPERTY_OVERRIDES := \
+    keyguard.no_require_sim=true \
+    ro.com.android.dateformat=MM-dd-yyyy \
+    ro.com.android.dataroaming=false \
+    ro.ril.hsxpa=2 \
+    ro.ril.gprsclass=12 \
+    ro.ril.enable.dtm=1 \
+    dalvik.vm.dexopt-data-only=1 \
+    ro.com.google.clientidbase=android-google 
 
-
-# Overrides
-PRODUCT_NAME := full
-PRODUCT_DEVICE := generic
-PRODUCT_BRAND := Android
-PRODUCT_MODEL := Full Android on Emulator
+PRODUCT_COPY_FILES := \
+    development/data/etc/apns-conf.xml:system/etc/apns-conf.xml \
+    development/data/etc/vold.conf:system/etc/vold.conf
