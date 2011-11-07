@@ -643,6 +643,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
+  script.RunBackup()
+
   script.FormatPartition("/system")
   script.Mount("/system")
   script.UnpackPackageDir("recovery", "/system")
@@ -658,6 +660,11 @@ def WriteFullOTAPackage(input_zip, output_zip):
     
 
   script.MakeSymlinks(symlinks)
+
+  script.RunRestore()
+
+  script.Mount("/userdata")
+  script.UnpackPackageDir("data", "/data")
 
   boot_img = common.File("boot.img", common.BuildBootableImage(
       os.path.join(OPTIONS.input_tmp, "BOOT")))

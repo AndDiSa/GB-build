@@ -18,8 +18,14 @@
 # are specific to the emulator.
 
 PRODUCT_PROPERTY_OVERRIDES := \
-    ro.ril.hsxpa=1 \
-    ro.ril.gprsclass=10
+    keyguard.no_require_sim=true \
+    ro.com.android.dateformat=MM-dd-yyyy \
+    ro.com.android.dataroaming=false \
+    ro.ril.hsxpa=2 \
+    ro.ril.gprsclass=12 \
+    ro.ril.enable.dtm=1 \
+    dalvik.vm.dexopt-data-only=1 \
+    ro.com.google.clientidbase=android-google 
 
 PRODUCT_COPY_FILES := \
     development/data/etc/apns-conf.xml:system/etc/apns-conf.xml \

@@ -142,6 +142,7 @@ class EdifyGenerator(object):
       self.mounts.add(p.mount_point)
     else:
       what = mount_point.lstrip("/")
+      if what == "userdata" : mount_point = "/data"
       what = self.info.get("partition_path", "") + what
       self.script.append('mount("%s", "%s", "%s", "%s");' %
                          (self.info["fs_type"], self.info["partition_type"],
@@ -287,6 +288,14 @@ class EdifyGenerator(object):
       self.script.append('unmount("%s");' % (p,))
     self.mounts = set()
 
+  def RunBackup(self):
+    self.script.append('package_extract_file("backuptool.sh", "/tmp/backuptool.sh");')
+    self.script.append('set_perm(0, 0, 0700, "/tmp/backuptool.sh");')
+    self.script.append('run_program("/tmp/backuptool.sh", "backup");')
+
+  def RunRestore(self):
+    self.script.append('run_program("/tmp/backuptool.sh", "restore");')
+
   def AddToZip(self, input_zip, output_zip, input_path=None):
     """Write the accumulated script to the output_zip file.  input_zip
     is used as the source for the 'updater' binary needed to run
@@ -304,3 +313,10 @@ class EdifyGenerator(object):
       data = open(os.path.join(input_path, "updater")).read()
     common.ZipWriteStr(output_zip, "META-INF/com/google/android/update-binary",
                        data, perms=0755)
+
+    android_root=os.getenv("ANDROID_BUILD_TOP")
+    backuptool = open(os.path.join(android_root,
+              "build","tools","releasetools","backuptool.sh"),
+              "rb")
+    common.ZipWriteStr(output_zip,"backuptool.sh",backuptool.read())
+    backuptool.close()
