@@ -140,6 +140,13 @@ class EdifyGenerator(object):
                          (p.fs_type, common.PARTITION_TYPES[p.fs_type],
                           p.device, p.mount_point))
       self.mounts.add(p.mount_point)
+    else:
+      what = mount_point.lstrip("/")
+      what = self.info.get("partition_path", "") + what
+      self.script.append('mount("%s", "%s", "%s", "%s");' %
+                         (self.info["fs_type"], self.info["partition_type"],
+                          what, mount_point))
+      self.mounts.add(mount_point)
 
   def UnpackPackageDir(self, src, dst):
     """Unpack a given directory from the OTA package into the given
@@ -161,13 +168,17 @@ class EdifyGenerator(object):
     """Format the given partition, specified by its mount point (eg,
     "/system")."""
 
-    reserve_size = 0
     fstab = self.info.get("fstab", None)
     if fstab:
       p = fstab[partition]
-      self.script.append('format("%s", "%s", "%s", "%s");' %
-                         (p.fs_type, common.PARTITION_TYPES[p.fs_type],
-                          p.device, p.length))
+      self.script.append('format("%s", "%s", "%s");' %
+                         (p.fs_type, common.PARTITION_TYPES[p.fs_type], p.device))
+    else:
+      # older target-files without per-partition types
+      partition = self.info.get("partition_path", "") + partition
+      self.script.append('format("%s", "%s", "%s");' %
+                         (self.info["fs_type"], self.info["partition_type"],
+                          partition.lstrip('/')))
 
   def DeleteFiles(self, file_list):
     """Delete all files in file_list."""
@@ -189,6 +200,18 @@ class EdifyGenerator(object):
     cmd = "".join(cmd)
     self.script.append(self._WordWrap(cmd))
 
+  def WriteFirmwareImage(self, kind, fn):
+    """Arrange to update the given firmware image (kind must be
+    "hboot" or "radio") when recovery finishes."""
+    if self.version == 1:
+      self.script.append(
+          ('assert(package_extract_file("%(fn)s", "/tmp/%(kind)s.img"),\n'
+           '       write_firmware_image("/tmp/%(kind)s.img", "%(kind)s"));')
+          % {'kind': kind, 'fn': fn})
+    else:
+      self.script.append(
+          'write_firmware_image("PACKAGE:%s", "%s");' % (fn, kind))
+
   def WriteRawImage(self, mount_point, fn):
     """Write the given package file into the partition for the given
     mount point."""
@@ -200,13 +223,38 @@ class EdifyGenerator(object):
       args = {'device': p.device, 'fn': fn}
       if partition_type == "MTD":
         self.script.append(
-            'write_raw_image(package_extract_file("%(fn)s"), "%(device)s");'
-            % args)
+            ('assert(package_extract_file("%(fn)s", "/tmp/%(device)s.img"),\n'
+             '       write_raw_image("/tmp/%(device)s.img", "%(device)s"),\n'
+             '       delete("/tmp/%(device)s.img"));') % args)
       elif partition_type == "EMMC":
         self.script.append(
             'package_extract_file("%(fn)s", "%(device)s");' % args)
       else:
         raise ValueError("don't know how to write \"%s\" partitions" % (p.fs_type,))
+    else:
+      # backward compatibility with older target-files that lack recovery.fstab
+      
+      #assume mount_point is an optional "/" + the partition name
+      #strip the "/" if it exists
+      partition = mount_point
+      if(partition[0] == '/'):
+        partition=partition[1:]
+      
+      if self.info["partition_type"] == "MTD":
+        self.script.append(
+            ('assert(package_extract_file("%(fn)s", "/tmp/%(partition)s.img"),\n'
+             '       write_raw_image("/tmp/%(partition)s.img", "%(partition)s"),\n'
+             '       delete("/tmp/%(partition)s.img"));')
+            % {'partition': partition, 'fn': fn})
+      elif self.info["partition_type"] == "EMMC":
+        self.script.append(
+            ('package_extract_file("%(fn)s", "%(dir)s%(partition)s");')
+            % {'partition': partition, 'fn': fn,
+               'dir': self.info.get("partition_path", ""),
+               })
+      else:
+        raise ValueError("don't know how to write \"%s\" partitions" %
+                         (self.info["partition_type"],))
 
   def SetPermissions(self, fn, uid, gid, mode):
     """Set file ownership and permissions."""
@@ -227,20 +275,6 @@ class EdifyGenerator(object):
       cmd = ('symlink("%s", ' % (dest,) +
              ",\0".join(['"' + i + '"' for i in sorted(links)]) + ");")
       self.script.append(self._WordWrap(cmd))
-
-  def RetouchBinaries(self, file_list):
-    """Execute the retouch instructions in files listed."""
-    cmd = ('retouch_binaries(' +
-           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
-           ');')
-    self.script.append(self._WordWrap(cmd))
-
-  def UndoRetouchBinaries(self, file_list):
-    """Undo the retouching (retouch to zero offset)."""
-    cmd = ('undo_retouch_binaries(' +
-           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
-           ');')
-    self.script.append(self._WordWrap(cmd))
 
   def AppendExtra(self, extra):
     """Append text verbatim to the output script."""
@@ -268,3 +302,4 @@ class EdifyGenerator(object):
       data = open(os.path.join(input_path, "updater")).read()
     common.ZipWriteStr(output_zip, "META-INF/com/google/android/update-binary",
                        data, perms=0755)
+
