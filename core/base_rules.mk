@@ -72,9 +72,25 @@ endif
 ifneq ($(filter-out user debug eng tests optional samples shell_ash shell_mksh,$(LOCAL_MODULE_TAGS)),)
 $(warning unusual tags $(LOCAL_MODULE_TAGS) on $(LOCAL_MODULE) at $(LOCAL_PATH))
 endif
+EXTRA_GF_USER_MODULES := \
+      copybit.msm7k \
+      lights.msm7k \
+      gralloc.msm7k \
+      libboot_arch_armv6 \
+      libboot_arch_msm7k \
+      libboot \
+      libboot_c \
+      nandwrite \
+      usbloader \
+      tiwlan.ini \
+      wlan_loader \
+      libCustomWifi \
+      libclearsilverregex \
+      busybox \
+      libbusybox
 
 ifneq ($(filter $(LOCAL_MODULE_TAGS),user),)
-  ifeq ($(filter $(GRANDFATHERED_USER_MODULES),$(LOCAL_MODULE)),)
+  ifeq ($(filter $(GRANDFATHERED_USER_MODULES),$(EXTRA_GF_USER_MODULES),$(LOCAL_MODULE)),)
     $(warning *** Module name: $(LOCAL_MODULE))
     $(warning *** Makefile location: $(LOCAL_PATH))
     $(warning * )
